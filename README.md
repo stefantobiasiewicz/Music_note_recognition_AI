@@ -6,3 +6,6 @@ Project recognize a music note and classified her by type.
  - TensorFlow
  - numpy
  - opencv
+
+# dataset
+ https://www.kaggle.com/kishanj/music-notes-datasets?select=datasets
