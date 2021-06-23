@@ -3,15 +3,30 @@ import os
 import tensorflow as tf
 import cv2
 
+Notes = ['Eight', 'Sixteenth', 'Half','Whole','Quarter']
+def predict(model):
+    image_test = cv2.imread('../note.jpg')
+    image_test = np.array([image_test])
+    image_test = image_test /255
+    return model.predict(image_test)
+
+def viewPredict(pred):
+    print('This is a ' + Notes[np.where(pred[0] == pred.max())[0].max()] + ' in ' + str(pred.max()*100) + '%')
+def present(model):
+    viewPredict(predict(model))
+
 if __name__ == '__main__':
     print(tf.__version__)
 
     path = '../Notes/datasets/datasets/Notes/'
     label = os.listdir(path)
-    label.remove('.DS_Store')  # potrzebne na systemie macos
+
+    try:
+        label.remove('.DS_Store')  # potrzebne na systemie macos
+    except:
+        print('no file .DS_Store')
 
     mapping = {k: v for v, k in enumerate(label)}
-
     #   przygotowanie list zdjec i odpowiadajacych im labeli
     images=[]
     labels=[]
@@ -77,8 +92,7 @@ if __name__ == '__main__':
 
     # uczenie sieci
     print('Training model...')
-    history = model.fit(X_train, y_train, batch_size=32, epochs=epochs,
-    validation_data=(X_test, y_test))
+    history = model.fit(X_train, y_train, batch_size=32, epochs=epochs, validation_data=(X_test, y_test))
 
     # wykresy precyzji oraz strat
     import matplotlib.pyplot as plt
@@ -110,6 +124,11 @@ if __name__ == '__main__':
     image = image /255
     pred = model.predict(image)
     
+    
+    pred = predict(model)
+    viewPredict(pred)
+    
+    present(model)
     
     from keras.models import load_model
     model = load_model('model.h5')
