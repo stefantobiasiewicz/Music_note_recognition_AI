@@ -3,17 +3,30 @@ import os
 import tensorflow as tf
 import cv2
 
-Notes = ['Eight', 'Sixteenth', 'Half','Whole','Quarter']
+from sklearn.model_selection import train_test_split
+
+from keras.models import Sequential
+from keras.layers import Conv2D, MaxPool2D, Dense, Flatten, Dropout
+
+import matplotlib.pyplot as plt
+
+Notes = ['Eight', 'Sixteenth', 'Half', 'Whole', 'Quarter']
+
+
 def predict(model):
     image_test = cv2.imread('../note.jpg')
     image_test = np.array([image_test])
     image_test = image_test /255
     return model.predict(image_test)
 
+
 def viewPredict(pred):
     print('This is a ' + Notes[np.where(pred[0] == pred.max())[0].max()] + ' in ' + str(pred.max()*100) + '%')
+
+
 def present(model):
     viewPredict(predict(model))
+
 
 if __name__ == '__main__':
     print(tf.__version__)
@@ -36,7 +49,7 @@ if __name__ == '__main__':
     for i in label:
         listImages = os.listdir(path+i+'/')     # wyszukanie wszystkich zdjec w katalogu
         #print(i + ' = ' + str(mapping.get(i)) + ' -> ' + str(len(listImages)))
-        print("All " + i + "are loded")
+        print("All " + i + "are loaded")
         for a in listImages:
             im = cv2.imread(path+i+'/'+a)   # odczyt zdjecia
             images.append(im)               # dodanie do listy zdjec
@@ -48,8 +61,8 @@ if __name__ == '__main__':
     images = np.array(images)
     images = images/255     # normalizacja pixeli
 
-    #   podział danych na testowe i walidacyjne
-    from sklearn.model_selection import train_test_split
+    #   podział danych na treningowe i walidacyjne
+
     X_train, X_test, y_train, y_test = train_test_split(images, labels, test_size=.2)
 
     # WAŻNE - przekształcenie danych Y (czyli label zapisanyw formie [0-4]) na liste list 5-cio elementowych
@@ -62,8 +75,7 @@ if __name__ == '__main__':
 
     print('Creating model...')
     # tworzenie modelu
-    from keras.models import Sequential
-    from keras.layers import Conv2D, MaxPool2D, Dense, Flatten, Dropout
+
     model = Sequential()
     model.add(Conv2D(filters=32, kernel_size=(5,5), activation='relu', input_shape=X_train.shape[1:]))
     model.add(Conv2D(filters=64, kernel_size=(3, 3), activation='relu'))
@@ -95,7 +107,7 @@ if __name__ == '__main__':
     history = model.fit(X_train, y_train, batch_size=32, epochs=epochs, validation_data=(X_test, y_test))
 
     # wykresy precyzji oraz strat
-    import matplotlib.pyplot as plt
+
 
     plt.figure(0)
     plt.plot(history.history['accuracy'], label='training accuracy')
